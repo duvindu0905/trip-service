@@ -9,22 +9,22 @@ const {
   deleteTripById
 } = require('../controllers/tripController');
 
-// Route to create a new trip (POST)
+// Route to create a new trip
 router.post('/trips', createTrip);
 
-// Route to get all trips by location and date (GET)
+// Route to get trips by location and date
 router.get('/trips/:startLocation/:endLocation/:tripDate', getTripsByLocationAndDate);
 
-// Route to get all trips by scheduleId and tripDate (GET)
+// Route to get trips by scheduleId and tripDate
 router.get('/trips/:scheduleId/:tripDate', getTripsByScheduleAndDate);
 
-// Route to get a trip by tripId (GET)
+// Route to get a trip by tripId
 router.get('/trips/:tripId', getTripById);
 
-// Route to update booking status by tripId (PATCH)
-router.patch('/trips/:tripId', updateBookingStatus);
+// Route to update booking status
+router.patch('/trips/:tripId/booking-status', updateBookingStatus);
 
-// Route to delete a trip by tripId (DELETE)
+// Route to delete a trip by tripId
 router.delete('/trips/:tripId', deleteTripById);
 
 module.exports = router;
