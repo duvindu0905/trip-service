@@ -6,29 +6,31 @@ const createTrip = async (req, res) => {
   const {
     tripId,
     tripNumber,
-    tripDate,
+    tripDate,  // Expect only date (no time)
     bookingStatus,
     confirmedSeatsCount,
     availableSeatsCount,
     routeNumber,
-    startLocation,
-    endLocation,
     scheduleId,
     permitNumber
   } = req.body;
 
   // Validate required fields
-  if (!startLocation || !endLocation || !routeNumber || !tripDate || !scheduleId || !permitNumber) {
+  if (!routeNumber || !tripDate || !scheduleId || !permitNumber) {
     return res.status(400).json({ message: 'Required fields missing' });
   }
 
-  try {
-    const existingTrip = await Trip.findOne({ tripId });
-    if (existingTrip) {
-      return res.status(400).json({ message: `Trip with ID ${tripId} already exists` });
-    }
+  // Normalize tripDate to remove time and ensure it's a valid date
+  const normalizedTripDate = new Date(tripDate);
+  if (isNaN(normalizedTripDate)) {
+    return res.status(400).json({ message: 'Invalid trip date format' });
+  }
 
-    // Select the correct service URLs based on the environment
+  // Set the time to midnight (00:00:00) to ignore the time part
+  normalizedTripDate.setHours(0, 0, 0, 0);
+
+  try {
+    // Check if the routeNumber, scheduleId, and permitNumber exist in their respective services
     const routeServiceUrl = process.env.NODE_ENV === 'production' 
       ? process.env.ROUTE_SERVICE_URL_PRODUCTION 
       : process.env.ROUTE_SERVICE_URL_LOCAL;
@@ -43,26 +45,31 @@ const createTrip = async (req, res) => {
 
     // Fetch route data from route-service using routeNumber
     const routeResponse = await axios.get(`${routeServiceUrl}/${routeNumber}`);
-    const routeData = routeResponse.data;
+    if (routeResponse.status !== 200) {
+      return res.status(404).json({ message: 'Invalid routeNumber' });
+    }
 
     // Fetch schedule data from schedule-service using scheduleId
     const scheduleResponse = await axios.get(`${scheduleServiceUrl}/${scheduleId}`);
-    const scheduleData = scheduleResponse.data;
+    if (scheduleResponse.status !== 200) {
+      return res.status(404).json({ message: 'Invalid scheduleId' });
+    }
 
     // Fetch permit data from permit-service using permitNumber
     const permitResponse = await axios.get(`${permitServiceUrl}/${permitNumber}`);
-    const permitData = permitResponse.data;
-
-    // Check if the fetched data is valid
-    if (!routeData || !scheduleData || !permitData) {
-      return res.status(400).json({ message: 'Route, Schedule, or Permit data not found' });
+    if (permitResponse.status !== 200) {
+      return res.status(404).json({ message: 'Invalid permitNumber' });
     }
+
+    const routeData = routeResponse.data;
+    const scheduleData = scheduleResponse.data;
+    const permitData = permitResponse.data;
 
     // Create a new trip using the fetched data
     const newTrip = new Trip({
       tripId,
       tripNumber,
-      tripDate,
+      tripDate: normalizedTripDate,  // Store the normalized tripDate (without time)
       bookingStatus,
       confirmedSeatsCount,
       availableSeatsCount,
@@ -70,8 +77,8 @@ const createTrip = async (req, res) => {
       routeName: routeData.routeName,
       travelDistance: routeData.travelDistance,
       travelDuration: routeData.travelDuration,
-      startLocation,
-      endLocation,
+      startLocation: routeData.startLocation, // From route service
+      endLocation: routeData.endLocation,     // From route service
       scheduleId,
       departureTime: scheduleData.departureTime,
       arrivalTime: scheduleData.arrivalTime,
@@ -100,7 +107,7 @@ const getTripsByLocationAndDate = async (req, res) => {
     const trips = await Trip.find({
       startLocation,
       endLocation,
-      tripDate: new Date(tripDate),
+      tripDate: new Date(tripDate).setHours(0, 0, 0, 0),  // Normalize to the start of the day
       music: music === 'true',
       ac: ac === 'true'
     }).select('-_id -__v');  // Exclude _id and __v
@@ -118,7 +125,7 @@ const getTripsByScheduleAndDate = async (req, res) => {
   try {
     const trips = await Trip.find({
       scheduleId,
-      tripDate: new Date(tripDate)
+      tripDate: new Date(tripDate).setHours(0, 0, 0, 0)  // Normalize to the start of the day
     }).select('-_id -__v');  // Exclude _id and __v
 
     res.status(200).json(trips);

@@ -2,13 +2,13 @@
     "openapi": "3.0.0",
     "info": {
       "title": "Trip Service API",
-      "description": "API for managing trips, including routes, schedules, and bookings",
+      "description": "API for managing trips in the trip service system.",
       "version": "1.0"
     },
     "servers": [
       {
         "url": "http://localhost:8083",
-        "description": "Development Server"
+        "description": "Local Development Server"
       },
       {
         "url": "https://api.tripservice.bussewaya.online",
@@ -43,7 +43,111 @@
               }
             },
             "400": {
-              "description": "Bad Request"
+              "description": "Required fields missing or invalid"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/trip-service/trips/{startLocation}/{endLocation}/{tripDate}": {
+        "get": {
+          "summary": "Get all trips by location and date",
+          "tags": ["Trip"],
+          "operationId": "getTripsByLocationAndDate",
+          "parameters": [
+            {
+              "name": "startLocation",
+              "in": "path",
+              "required": true,
+              "description": "Start location of the trip",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "endLocation",
+              "in": "path",
+              "required": true,
+              "description": "End location of the trip",
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "tripDate",
+              "in": "path",
+              "required": true,
+              "description": "Date of the trip",
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of trips",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Trip"
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Trips not found"
+            }
+          }
+        }
+      },
+      "/trip-service/trips/{scheduleId}/{tripDate}": {
+        "get": {
+          "summary": "Get all trips by scheduleId and tripDate",
+          "tags": ["Trip"],
+          "operationId": "getTripsByScheduleAndDate",
+          "parameters": [
+            {
+              "name": "scheduleId",
+              "in": "path",
+              "required": true,
+              "description": "ID of the schedule to retrieve trips for",
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "tripDate",
+              "in": "path",
+              "required": true,
+              "description": "Date of the trip",
+              "schema": {
+                "type": "string",
+                "format": "date"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of trips",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/Trip"
+                    }
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Trips not found"
             }
           }
         }
@@ -58,7 +162,7 @@
               "name": "tripId",
               "in": "path",
               "required": true,
-              "description": "ID of the trip to fetch",
+              "description": "ID of the trip to retrieve",
               "schema": {
                 "type": "string"
               }
@@ -74,46 +178,6 @@
                   }
                 }
               }
-            },
-            "404": {
-              "description": "Trip not found"
-            }
-          }
-        },
-        "patch": {
-          "summary": "Update booking status for a trip",
-          "tags": ["Trip"],
-          "operationId": "updateBookingStatus",
-          "parameters": [
-            {
-              "name": "tripId",
-              "in": "path",
-              "required": true,
-              "description": "ID of the trip to update",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "bookingStatus": {
-                      "type": "string",
-                      "example": "view"
-                    }
-                  }
-                }
-              }
-            }
-          },
-          "responses": {
-            "200": {
-              "description": "Booking status updated successfully"
             },
             "404": {
               "description": "Trip not found"
@@ -141,107 +205,53 @@
             },
             "404": {
               "description": "Trip not found"
+            },
+            "500": {
+              "description": "Internal Server Error"
             }
           }
         }
       },
-      "/trip-service/trips/{startLocation}/{endLocation}/{tripDate}": {
-        "get": {
-          "summary": "Get all trips by location and date",
+      "/trip-service/trips/{tripId}/booking-status": {
+        "patch": {
+          "summary": "Update booking status",
           "tags": ["Trip"],
-          "operationId": "getTripsByLocationAndDate",
+          "operationId": "updateBookingStatus",
           "parameters": [
             {
-              "name": "startLocation",
+              "name": "tripId",
               "in": "path",
               "required": true,
-              "description": "Starting location of the trip",
+              "description": "ID of the trip to update booking status for",
               "schema": {
                 "type": "string"
-              }
-            },
-            {
-              "name": "endLocation",
-              "in": "path",
-              "required": true,
-              "description": "Ending location of the trip",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "tripDate",
-              "in": "path",
-              "required": true,
-              "description": "The date of the trip",
-              "schema": {
-                "type": "string",
-                "format": "date"
               }
             }
           ],
-          "responses": {
-            "200": {
-              "description": "List of trips",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Trip"
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "bookingStatus": {
+                      "type": "string"
                     }
                   }
                 }
               }
-            },
-            "400": {
-              "description": "Invalid query parameters"
             }
-          }
-        }
-      },
-      "/trip-service/trips/{scheduleId}/{tripDate}": {
-        "get": {
-          "summary": "Get all trips by scheduleId and tripDate",
-          "tags": ["Trip"],
-          "operationId": "getTripsByScheduleAndDate",
-          "parameters": [
-            {
-              "name": "scheduleId",
-              "in": "path",
-              "required": true,
-              "description": "Schedule ID to retrieve trips for",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "tripDate",
-              "in": "path",
-              "required": true,
-              "description": "The date of the trip",
-              "schema": {
-                "type": "string",
-                "format": "date"
-              }
-            }
-          ],
+          },
           "responses": {
             "200": {
-              "description": "List of trips",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Trip"
-                    }
-                  }
-                }
-              }
+              "description": "Booking status updated successfully"
             },
-            "400": {
-              "description": "Invalid query parameters"
+            "404": {
+              "description": "Trip not found"
+            },
+            "500": {
+              "description": "Internal Server Error"
             }
           }
         }
@@ -260,7 +270,7 @@
             },
             "tripDate": {
               "type": "string",
-              "format": "date-time"
+              "format": "date"
             },
             "bookingStatus": {
               "type": "string"
@@ -272,6 +282,15 @@
               "type": "number"
             },
             "routeNumber": {
+              "type": "string"
+            },
+            "routeName": {
+              "type": "string"
+            },
+            "travelDistance": {
+              "type": "string"
+            },
+            "travelDuration": {
               "type": "string"
             },
             "startLocation": {
@@ -308,10 +327,31 @@
               "type": "boolean"
             }
           },
-          "required": ["tripId", "tripNumber", "tripDate", "bookingStatus", "confirmedSeatsCount", "availableSeatsCount", "routeNumber", "startLocation", "endLocation", "scheduleId", "permitNumber"]
+          "required": [
+            "tripId",
+            "tripNumber",
+            "tripDate",
+            "bookingStatus",
+            "confirmedSeatsCount",
+            "availableSeatsCount",
+            "routeNumber",
+            "routeName",
+            "travelDistance",
+            "travelDuration",
+            "startLocation",
+            "endLocation",
+            "scheduleId",
+            "departureTime",
+            "arrivalTime",
+            "permitNumber",
+            "vehicleNumber",
+            "busType",
+            "pricePerSeat",
+            "music",
+            "ac"
+          ]
         }
       }
     }
   }
-  
   
