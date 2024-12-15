@@ -5,8 +5,9 @@ const tripSchema = new mongoose.Schema({
   tripNumber: { type: String, required: true },
   tripDate: { type: String, required: true }, // Store date as 'YYYY-MM-DD'
   bookingStatus: { type: String, required: true },
-  confirmedSeatsCount: { type: Number, required: true },
-  availableSeatsCount: { type: Number, required: true },
+  confirmedSeats: { type: [Number], default: [] }, // Array to store confirmed seat numbers
+  availableSeats: { type: [Number], default: [] }, // Array to store available seat numbers
+  numberCapacity: { type: Number, required: true }, // Total seat capacity
   routeNumber: { type: String, required: true },
   routeName: { type: String, required: true },
   travelDistance: { type: String, required: true },
