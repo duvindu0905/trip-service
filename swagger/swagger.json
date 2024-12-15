@@ -1,28 +1,39 @@
 {
-    "openapi": "3.0.0",
-    "info": {
-      "title": "Trip Service API",
-      "description": "API for managing trips in the trip service system.",
-      "version": "1.0"
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Trip Service API",
+    "description": "API for managing trips in the trip service system.",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8083",
+      "description": "Local Development Server"
     },
-    "servers": [
-      {
-        "url": "http://localhost:8083",
-        "description": "Local Development Server"
-      },
-      {
-        "url": "https://api.tripservice.bussewaya.online",
-        "description": "Production Server"
-      }
-    ],
-    "paths": {
-      "/trip-service/trips": {
-        "post": {
-          "summary": "Create a new trip",
-          "tags": ["Trip"],
-          "operationId": "createTrip",
-          "requestBody": {
-            "required": true,
+    {
+      "url": "https://api.tripservice.bussewaya.online",
+      "description": "Production Server"
+    }
+  ],
+  "paths": {
+    "/trip-service/trips": {
+      "post": {
+        "summary": "Create a new trip",
+        "tags": ["Trip"],
+        "operationId": "createTrip",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Trip"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Trip created successfully",
             "content": {
               "application/json": {
                 "schema": {
@@ -31,327 +42,326 @@
               }
             }
           },
-          "responses": {
-            "201": {
-              "description": "Trip created successfully",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Trip"
-                  }
-                }
-              }
-            },
-            "400": {
-              "description": "Required fields missing or invalid"
-            },
-            "500": {
-              "description": "Internal Server Error"
-            }
-          }
-        }
-      },
-      "/trip-service/trips/{startLocation}/{endLocation}/{tripDate}": {
-        "get": {
-          "summary": "Get all trips by location and date",
-          "tags": ["Trip"],
-          "operationId": "getTripsByLocationAndDate",
-          "parameters": [
-            {
-              "name": "startLocation",
-              "in": "path",
-              "required": true,
-              "description": "Start location of the trip",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "endLocation",
-              "in": "path",
-              "required": true,
-              "description": "End location of the trip",
-              "schema": {
-                "type": "string"
-              }
-            },
-            {
-              "name": "tripDate",
-              "in": "path",
-              "required": true,
-              "description": "Date of the trip",
-              "schema": {
-                "type": "string",
-                "format": "date"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "List of trips",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Trip"
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Trips not found"
-            }
-          }
-        }
-      },
-      "/trip-service/trips/{scheduleId}/{tripDate}": {
-        "get": {
-          "summary": "Get all trips by scheduleId and tripDate",
-          "tags": ["Trip"],
-          "operationId": "getTripsByScheduleAndDate",
-          "parameters": [
-            {
-              "name": "scheduleId",
-              "in": "path",
-              "required": true,
-              "description": "ID of the schedule to retrieve trips for",
-              "schema": {
-                "type": "integer"
-              }
-            },
-            {
-              "name": "tripDate",
-              "in": "path",
-              "required": true,
-              "description": "Date of the trip",
-              "schema": {
-                "type": "string",
-                "format": "date"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "List of trips",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "type": "array",
-                    "items": {
-                      "$ref": "#/components/schemas/Trip"
-                    }
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Trips not found"
-            }
-          }
-        }
-      },
-      "/trip-service/trips/{tripId}": {
-        "get": {
-          "summary": "Get a trip by tripId",
-          "tags": ["Trip"],
-          "operationId": "getTripById",
-          "parameters": [
-            {
-              "name": "tripId",
-              "in": "path",
-              "required": true,
-              "description": "ID of the trip to retrieve",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Trip details",
-              "content": {
-                "application/json": {
-                  "schema": {
-                    "$ref": "#/components/schemas/Trip"
-                  }
-                }
-              }
-            },
-            "404": {
-              "description": "Trip not found"
-            }
-          }
-        },
-        "delete": {
-          "summary": "Delete a trip by tripId",
-          "tags": ["Trip"],
-          "operationId": "deleteTripById",
-          "parameters": [
-            {
-              "name": "tripId",
-              "in": "path",
-              "required": true,
-              "description": "ID of the trip to delete",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "responses": {
-            "200": {
-              "description": "Trip deleted successfully"
-            },
-            "404": {
-              "description": "Trip not found"
-            },
-            "500": {
-              "description": "Internal Server Error"
-            }
-          }
-        }
-      },
-      "/trip-service/trips/{tripId}/booking-status": {
-        "patch": {
-          "summary": "Update booking status",
-          "tags": ["Trip"],
-          "operationId": "updateBookingStatus",
-          "parameters": [
-            {
-              "name": "tripId",
-              "in": "path",
-              "required": true,
-              "description": "ID of the trip to update booking status for",
-              "schema": {
-                "type": "string"
-              }
-            }
-          ],
-          "requestBody": {
-            "required": true,
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "bookingStatus": {
-                      "type": "string"
-                    }
-                  }
-                }
-              }
-            }
+          "400": {
+            "description": "Required fields missing or invalid"
           },
-          "responses": {
-            "200": {
-              "description": "Booking status updated successfully"
-            },
-            "404": {
-              "description": "Trip not found"
-            },
-            "500": {
-              "description": "Internal Server Error"
-            }
+          "500": {
+            "description": "Internal Server Error"
           }
         }
       }
     },
-    "components": {
-      "schemas": {
-        "Trip": {
-          "type": "object",
-          "properties": {
-            "tripId": {
-              "type": "number"
-            },
-            "tripNumber": {
+    "/trip-service/trips/location/{startLocation}/{endLocation}/{tripDate}": {
+      "get": {
+        "summary": "Get all trips by location and date",
+        "tags": ["Trip"],
+        "operationId": "getTripsByLocationAndDate",
+        "parameters": [
+          {
+            "name": "startLocation",
+            "in": "path",
+            "required": true,
+            "description": "Start location of the trip",
+            "schema": {
               "type": "string"
-            },
-            "tripDate": {
-              "type": "string",
-              "format": "date"
-            },
-            "bookingStatus": {
-              "type": "string"
-            },
-            "confirmedSeatsCount": {
-              "type": "number"
-            },
-            "availableSeatsCount": {
-              "type": "number"
-            },
-            "routeNumber": {
-              "type": "string"
-            },
-            "routeName": {
-              "type": "string"
-            },
-            "travelDistance": {
-              "type": "string"
-            },
-            "travelDuration": {
-              "type": "string"
-            },
-            "startLocation": {
-              "type": "string"
-            },
-            "endLocation": {
-              "type": "string"
-            },
-            "scheduleId": {
-              "type": "number"
-            },
-            "departureTime": {
-              "type": "string"
-            },
-            "arrivalTime": {
-              "type": "string"
-            },
-            "permitNumber": {
-              "type": "string"
-            },
-            "vehicleNumber": {
-              "type": "string"
-            },
-            "busType": {
-              "type": "string"
-            },
-            "pricePerSeat": {
-              "type": "number"
-            },
-            "music": {
-              "type": "boolean"
-            },
-            "ac": {
-              "type": "boolean"
             }
           },
-          "required": [
-            "tripId",
-            "tripNumber",
-            "tripDate",
-            "bookingStatus",
-            "confirmedSeatsCount",
-            "availableSeatsCount",
-            "routeNumber",
-            "routeName",
-            "travelDistance",
-            "travelDuration",
-            "startLocation",
-            "endLocation",
-            "scheduleId",
-            "departureTime",
-            "arrivalTime",
-            "permitNumber",
-            "vehicleNumber",
-            "busType",
-            "pricePerSeat",
-            "music",
-            "ac"
-          ]
+          {
+            "name": "endLocation",
+            "in": "path",
+            "required": true,
+            "description": "End location of the trip",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tripDate",
+            "in": "path",
+            "required": true,
+            "description": "Date of the trip",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trips",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Trip"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Trips not found"
+          }
+        }
+      }
+    },
+    "/trip-service/trips/schedule/{scheduleId}/{tripDate}": {
+      "get": {
+        "summary": "Get all trips by scheduleId and tripDate",
+        "tags": ["Trip"],
+        "operationId": "getTripsByScheduleAndDate",
+        "parameters": [
+          {
+            "name": "scheduleId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the schedule to retrieve trips for",
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "tripDate",
+            "in": "path",
+            "required": true,
+            "description": "Date of the trip",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of trips",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Trip"
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Trips not found"
+          }
+        }
+      }
+    },
+    "/trip-service/trips/{tripId}": {
+      "get": {
+        "summary": "Get a trip by tripId",
+        "tags": ["Trip"],
+        "operationId": "getTripById",
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the trip to retrieve",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Trip"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Trip not found"
+          }
+        }
+      },
+      "delete": {
+        "summary": "Delete a trip by tripId",
+        "tags": ["Trip"],
+        "operationId": "deleteTripById",
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the trip to delete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Trip deleted successfully"
+          },
+          "404": {
+            "description": "Trip not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/trip-service/trips/{tripId}/booking-status": {
+      "patch": {
+        "summary": "Update booking status",
+        "tags": ["Trip"],
+        "operationId": "updateBookingStatus",
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the trip to update booking status for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "bookingStatus": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking status updated successfully"
+          },
+          "404": {
+            "description": "Trip not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
         }
       }
     }
+  },
+  "components": {
+    "schemas": {
+      "Trip": {
+        "type": "object",
+        "properties": {
+          "tripId": {
+            "type": "number"
+          },
+          "tripNumber": {
+            "type": "string"
+          },
+          "tripDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "bookingStatus": {
+            "type": "string"
+          },
+          "confirmedSeats": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "availableSeats": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "numberCapacity": {
+            "type": "number"
+          },
+          "routeNumber": {
+            "type": "string"
+          },
+          "routeName": {
+            "type": "string"
+          },
+          "travelDistance": {
+            "type": "string"
+          },
+          "travelDuration": {
+            "type": "string"
+          },
+          "startLocation": {
+            "type": "string"
+          },
+          "endLocation": {
+            "type": "string"
+          },
+          "scheduleId": {
+            "type": "number"
+          },
+          "departureTime": {
+            "type": "string"
+          },
+          "arrivalTime": {
+            "type": "string"
+          },
+          "permitNumber": {
+            "type": "string"
+          },
+          "vehicleNumber": {
+            "type": "string"
+          },
+          "busType": {
+            "type": "string"
+          },
+          "pricePerSeat": {
+            "type": "number"
+          },
+          "music": {
+            "type": "boolean"
+          },
+          "ac": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "tripId",
+          "tripNumber",
+          "tripDate",
+          "bookingStatus",
+          "confirmedSeats",
+          "availableSeats",
+          "numberCapacity",
+          "routeNumber",
+          "routeName",
+          "travelDistance",
+          "travelDuration",
+          "startLocation",
+          "endLocation",
+          "scheduleId",
+          "departureTime",
+          "arrivalTime",
+          "permitNumber",
+          "vehicleNumber",
+          "busType",
+          "pricePerSeat",
+          "music",
+          "ac"
+        ]
+      }
+    }
   }
-  
+}
+

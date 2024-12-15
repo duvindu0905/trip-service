@@ -6,17 +6,17 @@ const {
   getTripsByScheduleAndDate,
   getTripById,
   updateBookingStatus,
-  deleteTripById
+  deleteTripById,
 } = require('../controllers/tripController');
 
 // Route to create a new trip
 router.post('/trips', createTrip);
 
-// Route to get trips by location and date
-router.get('/trips/:startLocation/:endLocation/:tripDate', getTripsByLocationAndDate);
+// Route to get trips by location (start and end) and date
+router.get('/trips/location/:startLocation/:endLocation/:tripDate', getTripsByLocationAndDate);
 
 // Route to get trips by scheduleId and tripDate
-router.get('/trips/:scheduleId/:tripDate', getTripsByScheduleAndDate);
+router.get('/trips/schedule/:scheduleId/:tripDate', getTripsByScheduleAndDate);
 
 // Route to get a trip by tripId
 router.get('/trips/:tripId', getTripById);
@@ -28,3 +28,4 @@ router.patch('/trips/:tripId/booking-status', updateBookingStatus);
 router.delete('/trips/:tripId', deleteTripById);
 
 module.exports = router;
+

@@ -10,6 +10,12 @@ const normalizeDate = (date) => {
   return normalizedDate.toISOString().split('T')[0]; // Extract only the date part
 };
 
+// Custom validation for trip date format
+const validateTripDate = (date) => {
+  const regex = /^\d{4}-\d{2}-\d{2}$/;
+  return regex.test(date);
+};
+
 // Create a new trip
 const createTrip = async (req, res) => {
   const {
@@ -17,25 +23,35 @@ const createTrip = async (req, res) => {
     tripNumber,
     tripDate, // Expect only date (no time)
     bookingStatus,
-    confirmedSeatsCount,
-    availableSeatsCount,
     routeNumber,
     scheduleId,
     permitNumber,
   } = req.body;
 
   // Validate required fields
-  if (!routeNumber || !tripDate || !scheduleId || !permitNumber) {
+  if (!tripId || !tripNumber || !tripDate || !bookingStatus || !routeNumber || !scheduleId || !permitNumber) {
     return res.status(400).json({ message: 'Required fields missing' });
   }
 
-  // Normalize tripDate
+  // Validate tripDate format
   const formattedTripDate = normalizeDate(tripDate);
-  if (!formattedTripDate) {
-    return res.status(400).json({ message: 'Invalid trip date format' });
+  if (!formattedTripDate || !validateTripDate(tripDate)) {
+    return res.status(400).json({ message: 'Invalid trip date format, expected YYYY-MM-DD' });
+  }
+
+  // Validate bookingStatus value
+  const validStatuses = ['Available', 'Sold Out', 'Pending'];
+  if (!validStatuses.includes(bookingStatus)) {
+    return res.status(400).json({ message: `Invalid bookingStatus. Allowed values are: ${validStatuses.join(', ')}` });
   }
 
   try {
+    // Check if a trip with the same tripId already exists
+    const existingTrip = await Trip.findOne({ tripId });
+    if (existingTrip) {
+      return res.status(400).json({ message: 'A trip with this tripId already exists' });
+    }
+
     const routeServiceUrl =
       process.env.NODE_ENV === 'production'
         ? process.env.ROUTE_SERVICE_URL_PRODUCTION
@@ -67,17 +83,8 @@ const createTrip = async (req, res) => {
     const scheduleData = scheduleResponse.data;
     const permitData = permitResponse.data;
 
-    // Create an array of available booking numbers
-    const availableBookingNumbers = Array.from(
-      { length: availableSeatsCount },
-      (_, index) => index + 1
-    );
-
-    // Create an array of confirmed seat numbers
-    const confirmedSeatNumbers = Array.from(
-      { length: confirmedSeatsCount },
-      (_, index) => index + 1
-    );
+    // Get numberCapacity from the permit service data
+    const numberCapacity = permitData.numberCapacity; // Assuming 'numberCapacity' is provided by the permit service
 
     // Create a new trip using the fetched data
     const newTrip = new Trip({
@@ -85,8 +92,9 @@ const createTrip = async (req, res) => {
       tripNumber,
       tripDate: formattedTripDate, // Use the formatted date
       bookingStatus,
-      confirmedSeatsCount,
-      availableSeatsCount,
+      confirmedSeats: [], // Initially, no confirmed seats
+      availableSeats: Array.from({ length: numberCapacity }, (_, i) => i + 1), // Create an array of seat numbers from 1 to numberCapacity
+      numberCapacity, // Add numberCapacity field
       routeNumber,
       routeName: routeData.routeName,
       travelDistance: routeData.travelDistance,
@@ -102,8 +110,6 @@ const createTrip = async (req, res) => {
       pricePerSeat: permitData.pricePerSeat, // From permit service
       music: permitData.music, // From permit service
       ac: permitData.ac, // From permit service
-      availableBookingNumbers: availableBookingNumbers,
-      confirmedSeatNumbers: confirmedSeatNumbers,
     });
 
     await newTrip.save();
@@ -133,14 +139,7 @@ const getTripsByLocationAndDate = async (req, res) => {
       ...(ac && { ac: ac === 'true' }),
     }).select('-_id -__v'); // Exclude _id and __v
 
-    // Add availableBookingNumbers and confirmedSeatNumbers to each trip
-    const tripsWithSeatNumbers = trips.map((trip) => ({
-      ...trip.toObject(),
-      availableBookingNumbers: trip.availableBookingNumbers,
-      confirmedSeatNumbers: trip.confirmedSeatNumbers,
-    }));
-
-    res.status(200).json(tripsWithSeatNumbers);
+    res.status(200).json(trips);
   } catch (error) {
     console.error('Error fetching trips by location and date:', error.message);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -162,14 +161,7 @@ const getTripsByScheduleAndDate = async (req, res) => {
       tripDate: formattedTripDate, // Filter trips by normalized date
     }).select('-_id -__v'); // Exclude _id and __v
 
-    // Add availableBookingNumbers and confirmedSeatNumbers to each trip
-    const tripsWithSeatNumbers = trips.map((trip) => ({
-      ...trip.toObject(),
-      availableBookingNumbers: trip.availableBookingNumbers,
-      confirmedSeatNumbers: trip.confirmedSeatNumbers,
-    }));
-
-    res.status(200).json(tripsWithSeatNumbers);
+    res.status(200).json(trips);
   } catch (error) {
     console.error('Error fetching trips by scheduleId and date:', error.message);
     res.status(500).json({ message: 'Server error', error: error.message });
@@ -186,14 +178,7 @@ const getTripById = async (req, res) => {
       return res.status(404).json({ message: 'Trip not found' });
     }
 
-    // Add availableBookingNumbers and confirmedSeatNumbers to the trip
-    const tripWithSeatNumbers = {
-      ...trip.toObject(),
-      availableBookingNumbers: trip.availableBookingNumbers,
-      confirmedSeatNumbers: trip.confirmedSeatNumbers,
-    };
-
-    res.status(200).json(tripWithSeatNumbers);
+    res.status(200).json(trip);
   } catch (error) {
     console.error('Error fetching trip by ID:', error.message);
     res.status(500).json({ message: 'Server error', error: error.message });
