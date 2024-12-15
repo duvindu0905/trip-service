@@ -13,10 +13,10 @@ const {
 router.post('/trips', createTrip);
 
 // Route to get trips by location (start and end) and date
-router.get('/trips/location/:startLocation/:endLocation/:tripDate', getTripsByLocationAndDate);
+router.get('/trips/:startLocation/:endLocation/:tripDate', getTripsByLocationAndDate);
 
 // Route to get trips by scheduleId and tripDate
-router.get('/trips/schedule/:scheduleId/:tripDate', getTripsByScheduleAndDate);
+router.get('/trips/:scheduleId/:tripDate', getTripsByScheduleAndDate);
 
 // Route to get a trip by tripId
 router.get('/trips/:tripId', getTripById);
