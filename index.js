@@ -4,7 +4,7 @@ const app = require('./src/app');  // Ensure to adjust path accordingly
 const dotenv = require('dotenv');  // To load environment variables from .env file
 dotenv.config();  // Load environment variables
 
-// Define the port from environment variables or default to 8082
+// Define the port from environment variables or default to 8083
 const PORT = process.env.PORT || 8083;
 
 // Start the Express server
