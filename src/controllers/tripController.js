@@ -207,6 +207,60 @@ const updateBookingStatus = async (req, res) => {
   }
 };
 
+const confirmSeatBooking = async (req, res) => {
+  const { tripId } = req.params;  // Get the tripId from the URL parameter
+  const { seatNumber } = req.body;  // Get the seatNumber from the request body
+
+  try {
+    // Ensure seatNumber is provided and is a valid integer
+    if (!seatNumber || isNaN(seatNumber)) {
+      return res.status(400).json({ message: 'Invalid seat number' });
+    }
+
+    // Find the trip by tripId
+    const trip = await Trip.findOne({ tripId });
+
+    if (!trip) {
+      return res.status(404).json({ message: 'Trip not found' });
+    }
+
+    // Ensure availableSeats and confirmedSeats are arrays
+    trip.availableSeats = Array.isArray(trip.availableSeats) ? trip.availableSeats : [];
+    trip.confirmedSeats = Array.isArray(trip.confirmedSeats) ? trip.confirmedSeats : [];
+
+    // Ensure the seatNumber is available
+    const seatNumberInt = parseInt(seatNumber);  // Convert to integer
+    if (!trip.availableSeats.includes(seatNumberInt)) {
+      return res.status(400).json({ message: `Seat ${seatNumberInt} is not available for booking` });
+    }
+
+    // Log the seat confirmation process
+    console.log(`Confirming seat: ${seatNumberInt} for tripId: ${tripId}`);
+
+    // Mark the seat as confirmed
+    trip.confirmedSeats.push(seatNumberInt);
+    trip.availableSeats = trip.availableSeats.filter(seat => seat !== seatNumberInt);  // Remove from availableSeats
+
+    // Save the updated trip data
+    await trip.save();
+
+    // Log the updated trip data
+    console.log('Updated trip data:', trip);
+
+    // Return success response
+    res.status(200).json({
+      message: 'Seat successfully confirmed',
+      trip,
+    });
+
+  } catch (error) {
+    console.error('Error confirming seat booking:', error.message);
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+
+
 // Delete a trip by tripId
 const deleteTripById = async (req, res) => {
   const { tripId } = req.params;
@@ -231,5 +285,6 @@ module.exports = {
   getTripsByScheduleAndDate,
   getTripById,
   updateBookingStatus,
+  confirmSeatBooking,
   deleteTripById,
 };
