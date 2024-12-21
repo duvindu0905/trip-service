@@ -16,7 +16,7 @@
     }
   ],
   "paths": {
-    "/trip-service/trips": {
+    "/trips": {
       "post": {
         "summary": "Create a new trip",
         "tags": ["Trip"],
@@ -51,7 +51,7 @@
         }
       }
     },
-    "/trip-service/trips/location/{startLocation}/{endLocation}/{tripDate}": {
+    "/trips/{startLocation}/{endLocation}/{tripDate}": {
       "get": {
         "summary": "Get all trips by location and date",
         "tags": ["Trip"],
@@ -106,7 +106,7 @@
         }
       }
     },
-    "/trip-service/trips/schedule/{scheduleId}/{tripDate}": {
+    "/trips/{scheduleId}/{tripDate}": {
       "get": {
         "summary": "Get all trips by scheduleId and tripDate",
         "tags": ["Trip"],
@@ -152,7 +152,7 @@
         }
       }
     },
-    "/trip-service/trips/{tripId}": {
+    "/trips/{tripId}": {
       "get": {
         "summary": "Get a trip by tripId",
         "tags": ["Trip"],
@@ -212,7 +212,7 @@
         }
       }
     },
-    "/trip-service/trips/{tripId}/booking-status": {
+    "/trips/{tripId}/booking-status": {
       "patch": {
         "summary": "Update booking status",
         "tags": ["Trip"],
@@ -249,6 +249,53 @@
           },
           "404": {
             "description": "Trip not found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/trips/{tripId}/confirm-seat": {
+      "patch": {
+        "summary": "Confirm a seat for a specific tripId",
+        "tags": ["Trip"],
+        "operationId": "confirmSeatBooking",
+        "parameters": [
+          {
+            "name": "tripId",
+            "in": "path",
+            "required": true,
+            "description": "ID of the trip to confirm seat for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "seatNumber": {
+                    "type": "integer"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Seat successfully confirmed"
+          },
+          "404": {
+            "description": "Trip not found"
+          },
+          "400": {
+            "description": "Invalid seat number"
           },
           "500": {
             "description": "Internal Server Error"
@@ -364,4 +411,3 @@
     }
   }
 }
-
