@@ -16,7 +16,7 @@
     }
   ],
   "paths": {
-    "/trips": {
+    "/trip-service/trips": {
       "post": {
         "summary": "Create a new trip",
         "tags": ["Trip"],
@@ -51,7 +51,7 @@
         }
       }
     },
-    "/trips/{startLocation}/{endLocation}/{tripDate}": {
+    "/trip-service/trips/{startLocation}/{endLocation}/{tripDate}": {
       "get": {
         "summary": "Get all trips by location and date",
         "tags": ["Trip"],
@@ -106,7 +106,7 @@
         }
       }
     },
-    "/trips/{scheduleId}/{tripDate}": {
+    "/trip-service/trips/{scheduleId}/{tripDate}": {
       "get": {
         "summary": "Get all trips by scheduleId and tripDate",
         "tags": ["Trip"],
@@ -152,7 +152,7 @@
         }
       }
     },
-    "/trips/{tripId}": {
+    "/trip-service/trips/{tripId}": {
       "get": {
         "summary": "Get a trip by tripId",
         "tags": ["Trip"],
@@ -212,7 +212,7 @@
         }
       }
     },
-    "/trips/{tripId}/booking-status": {
+    "/trip-service/trips/{tripId}/booking-status": {
       "patch": {
         "summary": "Update booking status",
         "tags": ["Trip"],
@@ -256,7 +256,7 @@
         }
       }
     },
-    "/trips/{tripId}/confirm-seat": {
+    "/trip-service/trips/{tripId}/confirm-seat": {
       "patch": {
         "summary": "Confirm a seat for a specific tripId",
         "tags": ["Trip"],
