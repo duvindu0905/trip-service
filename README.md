@@ -3,8 +3,6 @@ nibm index - YR3COBSCCOMP232P-007
 
 Api for trip service 
 
-url: https://api.tripservice.bussewaya.online
+url: https://trip-service-193893744076.us-central1.run.app/trip-service/trips
 
-example: https://api.tripservice.bussewaya.online/trip-service/trips/:tripId
-
-swagger url: https://api.tripservice.bussewaya.online/api-docs/#/
+swagger url: https://trip-service-193893744076.us-central1.run.app/api-docs/#/
