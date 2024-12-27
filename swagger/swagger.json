@@ -11,7 +11,7 @@
       "description": "Local Development Server"
     },
     {
-      "url": "https://api.tripservice.bussewaya.online",
+      "url": "https://trip-service-193893744076.us-central1.run.app",
       "description": "Production Server"
     }
   ],

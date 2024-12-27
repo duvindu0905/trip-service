@@ -35,8 +35,8 @@ jobs:
             --allow-unauthenticated \
             --set-env-vars=MONGO_URI_TRIP=${{ secrets.MONGO_URI_TRIP }},\
             ROUTE_SERVICE_URL_LOCAL=http://localhost:8080/route-service/routes,\
-            ROUTE_SERVICE_URL_PRODUCTION=https://api.routeservice.bussewaya.online/route-service/routes,\
+            ROUTE_SERVICE_URL_PRODUCTION=https://route-service-193893744076.us-central1.run.app/route-service/routes,\
             PERMIT_SERVICE_URL_LOCAL=http://localhost:8081/permit-service/permits,\
-            PERMIT_SERVICE_URL_PRODUCTION=https://api.permitservice.bussewaya.online/permit-service/permits,\
+            PERMIT_SERVICE_URL_PRODUCTION=https://permit-service-193893744076.us-central1.run.app/permit-service/permits,\
             SCHEDULE_SERVICE_URL_LOCAL=http://localhost:8082/schedule-service/schedules,\
-            SCHEDULE_SERVICE_URL_PRODUCTION=https://api.scheduleservice.bussewaya.online/schedule-service/schedules
+            SCHEDULE_SERVICE_URL_PRODUCTION=https://schedule-service-193893744076.us-central1.run.app/schedule-service/schedules
